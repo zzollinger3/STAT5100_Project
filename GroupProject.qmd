@@ -1,0 +1,43 @@
+---
+title: "Lung Cancer Risk Analysis"
+author: "Glenn Butterfield, Jonah Stringfellow, Zack Zollinger"
+format: html
+execute:
+  warning: false
+echo: false
+editor: source
+---
+\newpage
+
+# Introduction
+
+
+# Methods
+
+
+# Results
+
+
+# Discussion / Conclusion
+
+
+# References
+
+
+# Figures / Tables
+
+
+# Appendix
+
+
+# Contribution Statement
+
+
+# Response to Reviews
+
+
+
+
+
+
+
