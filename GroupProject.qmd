@@ -1,10 +1,21 @@
 ---
 title: "Lung Cancer Risk Analysis"
 author: "Glenn Butterfield, Jonah Stringfellow, Zack Zollinger"
-format: html
+subtitle: "STAT 5100/6100 Final Project"
+date: "2026-11-12"
+format:
+  pdf:
+    toc: false
+    number-sections: false
+    fontsize: 12pt
+    linestretch: 1.15
+    colorlinks: true
 execute:
+  echo: false
   warning: false
-echo: false
+  message: false
+  error: false
+  cache: false
 editor: source
 ---
 \newpage
