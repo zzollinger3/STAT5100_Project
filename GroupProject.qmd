@@ -9,6 +9,17 @@ editor: source
 ---
 \newpage
 
+```{r}
+#| echo: false
+# Code setup
+
+rm(list = ls())
+options(digits = 4, scipen = 999)
+set.seed(123)
+dat <- read.csv("lung_cancer.csv")
+```
+
+
 # Introduction
 
 
