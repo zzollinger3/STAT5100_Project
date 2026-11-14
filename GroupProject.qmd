@@ -34,7 +34,40 @@ dat <- read.csv("lung_cancer.csv")
 # Introduction
 
 
+# Data
+
+
 # Methods
+
+
+
+After examining the potential variables related to lung cancer risk, we decided on a few in particular for our hypothesis. We suspect that increases in smoking (pack years), higher air pollution indices, as well as an exposure to radon and a family history of cancer, will be associated with an increased risk for lung cancer. Also, we suspect that an increase in exercise hours per week will be associated with a lower risk for lung cancer. 
+
+```{r}
+# show that pack years = cigs_per_day/20 * smoking_yrs
+# aka pack years is number of packs smoked per day times the number of years the person has been smoking where one pack is considered to be 20 cigarettes
+
+est_pack <- dat$cigarettes_per_day/20 * dat$smoking_years
+sum(abs(dat$pack_years - est_pack) > 1)
+
+```
+
+```{r}
+#| warning: false
+#| message: false
+# create the inference model - age, gender, bmi are variables we are controlling for
+infer <- glm(lung_cancer_risk ~ pack_years + air_pollution_index + radon_exposure
+             + family_history_cancer + exercise_hours_per_week
+             + age + gender + bmi, 
+             data=dat, family="binomial")
+
+summary(infer)
+
+exp(coef(infer))
+exp(confint(infer, parm=c("pack_years", "air_pollution_index", "radon_exposure",
+            "family_history_cancer", "exercise_hours_per_week"), level=0.95))
+
+```
 
 
 # Results
@@ -44,6 +77,7 @@ dat <- read.csv("lung_cancer.csv")
 
 
 # References
+Data set source: https://www.kaggle.com/datasets/dhrubangtalukdar/lung-cancer-prediction-dataset?resource=download)
 
 
 # Figures / Tables
