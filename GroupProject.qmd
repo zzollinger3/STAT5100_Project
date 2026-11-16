@@ -33,6 +33,9 @@ dat <- read.csv("lung_cancer.csv")
 
 # Introduction
 
+Lung Cancer is the leading cause of cancer related death in the United States, accounting for about 1 out of every 5 cancer deaths in the country. This is driven by a number of factors, including various behavioral, environmental, and genetic risk factors. Identifying which specific factors most strongly elevate the risk of lung cancer is essential for identifying those who are most likely to develop lung cancer. In this study, we analyze a clinical and lifestyle dataset of 5,000 individuals to evaluate the driving factors of lung cancer risk and the predictive accuracy of these factors. Specifically we aim to answer this question: What demographic, lifestyle, environmental, and clinical features are most relevant in predicting lung cancer risk?
+
+To answer this question, we will fit two distinct models. First, we will build an inferential logistic regression model using the covariates we hypothesize will drive higher lung cancer risk. After this first model is evaluated, a we will construct a predictive model using data-driven model selection and evaluate it using cross-validation.
 
 # Data
 
