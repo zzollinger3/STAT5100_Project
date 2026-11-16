@@ -35,20 +35,26 @@ dat <- read.csv("lung_cancer.csv")
 
 Lung Cancer is the leading cause of cancer related death in the United States, accounting for about 1 out of every 5 cancer deaths in the country. This is driven by a number of factors, including various behavioral, environmental, and genetic risk factors. Identifying which specific factors most strongly elevate the risk of lung cancer is essential for identifying those who are most likely to develop lung cancer. In this study, we analyze a clinical and lifestyle dataset of 5,000 individuals to evaluate the driving factors of lung cancer risk and the predictive accuracy of these factors. Specifically we aim to answer this question: What demographic, lifestyle, environmental, and clinical features are most relevant in predicting lung cancer risk?
 
-To answer this question, we will fit two distinct models. First, we will build an inferential logistic regression model using the covariates we hypothesize will drive higher lung cancer risk. After this first model is evaluated, a we will construct a predictive model using data-driven model selection and evaluate it using cross-validation.
-
-# Data
+To answer this question, we will fit two distinct models. First, we will build an inferential logistic regression model using the covariates we hypothesize will drive higher lung cancer risk. After this first model is evaluated, we will construct a predictive model using data-driven model selection and evaluate it using cross-validation.
 
 
 # Methods
+Our dataset of choice came from the kaggle website (https://www.kaggle.com/datasets/dhrubangtalukdar/lung-cancer-prediction-dataset?resource=download) and includes 5000 observations with no missing values. Our research is based on the binary response variable of lung cancer risk for each observation. There are an additional 29 predictors that may or may not be associated with the outcome of lung cancer risk. 
+
+For our inference model, we did not want our hypothesis or chosen covariates to be influenced by the data itself to maintain the integrity of our inferences.  
+
+```{r}
+sum(is.na(dat))
+```
 
 
 
-After examining the potential variables related to lung cancer risk, we decided on a few in particular for our hypothesis. We suspect that increases in smoking (pack years), higher air pollution indices, as well as an exposure to radon and a family history of cancer, will be associated with an increased risk for lung cancer. Also, we suspect that an increase in exercise hours per week will be associated with a lower risk for lung cancer. 
+After examining and researching the potential variables related to lung cancer risk, we decided on a few in particular for our hypothesis. We suspect that increases in smoking (pack years), higher air pollution indices, as well as an exposure to radon and a family history of cancer, will be associated with an increased risk for lung cancer. Also, we suspect that an increase in exercise hours per week will be associated with a lower risk for lung cancer. 
+
+Therefore, with these covariates chosen for the hypothesis, we fit the following inference model while controlling for the variables of age, gender, and body mass index(BMI). 
 
 ```{r}
 # show that pack years = cigs_per_day/20 * smoking_yrs
-# aka pack years is number of packs smoked per day times the number of years the person has been smoking where one pack is considered to be 20 cigarettes
 
 est_pack <- dat$cigarettes_per_day/20 * dat$smoking_years
 sum(abs(dat$pack_years - est_pack) > 1)
