@@ -2,7 +2,7 @@
 title: "Lung Cancer Risk Analysis"
 author: "Glenn Butterfield, Jonah Stringfellow, Zack Zollinger"
 subtitle: "STAT 5100/6100 Final Project"
-date: "2026-11-12"
+date: today
 format:
   pdf:
     toc: false
@@ -28,6 +28,9 @@ rm(list = ls())
 options(digits = 4, scipen = 999)
 set.seed(123)
 dat <- read.csv("lung_cancer.csv")
+library(DHARMa)
+library(car)
+library(pROC)
 ```
 
 
@@ -45,11 +48,15 @@ For our inference model, we did not want our hypothesis or chosen covariates to 
 
 After researching and learning about several of the potential variables related to lung cancer risk, we decided on a few for our inference model. Due to large amounts of research, we suspect that the largest effect will come from the smoking variable. In particular, we have decided to use pack years in this model, which is calculated as the number of cigarettes smoked per day divided by 20 (where 20 is considered the size of one pack) and then multiplied by the number of years that person has smoked. This variable therefore explains not only how long an individual has been smoking but the rate at which they smoke as well. In addition to smoking, we suspect that higher levels of air pollution, an exposure to radon, and a family history of cancer will be postively correlated with lung cancer risk. More specifically we hypothesize that air pollution will have the next largest effect followed by radon exposure and finally a family history of cancer, which we believe will have the smallest effect on cancer risk among these predictors. Finally, we suspect that an increase in exercise hours per week will be associated with a lower risk for lung cancer.
 
-Therefore, with these covariates chosen for the hypothesis, we fit the following inference model while controlling for the variables of age, gender, and body mass index(BMI). We did not believe there were any notable interactions between these variables, so none were included in the model. The model equation is $\text{lung_cancer_risk ~ pack_years + air_pollution_index + radon_exposure + family_history_cancer + exercise_hours_per_week+ age + gender + bmi}$  
+Therefore, with these covariates chosen for the hypothesis, we fit the following inference model while controlling for the variables of age, gender, and body mass index(BMI). We did not believe there were any notable interactions between these variables, so none were included in the model. The model equation is "lung_cancer_risk ~ pack_years + air_pollution_index + radon_exposure + family_history_cancer + exercise_hours_per_week + age + gender + bmi"
 
 ```{r}
 #| warning: false
 #| message: false
+#| include: false
+
+# Do not show the output in this section! 
+#   Only run the code in order to plot assumption graphs
 # create the inference model - age, gender, bmi are variables we are controlling for
 infer <- glm(lung_cancer_risk ~ pack_years + air_pollution_index + radon_exposure
              + family_history_cancer + exercise_hours_per_week
@@ -58,15 +65,84 @@ infer <- glm(lung_cancer_risk ~ pack_years + air_pollution_index + radon_exposur
 
 summary(infer)
 
+# convert coefficients and CI from log odds to odds for better interpretability
 exp(coef(infer))
 exp(confint(infer, parm=c("pack_years", "air_pollution_index", "radon_exposure",
             "family_history_cancer", "exercise_hours_per_week"), level=0.95))
+
+# proportion reduction in deviance compared to intercept only(null) model
+nullDev <- 5610
+residDev <- 911
+R2 <- 1 - residDev/nullDev
+R2
 
 ```
 
 Each covariate was carefully chosen for a specific reason to be included in the model. The known health impacts of smoking and air pollution made them clear choices for this model as a way of validating lots of research on this topic. Radon exposure was another  covariate that we assumed would have a clear positive correlation with lung cancer risk due to it being a radioactive gas. Exercise is known to have various health benefits and therefore was one of the few variables in this data set that we thought had the potential of having a negative correlation with lung cancer risk, so we wanted to include it to see its relationship. We know that with some types of cancer having a family history of it can be a key indicator for risk, so we included this covariate to determine if lung cancer has a similar relationship. 
 
+The inference model we created makes certain assumptions in order to produce its interpretable values for each of the variables. The models results become invalidated if these assumptions are not met, so we created a few plots to verify them. 
+
+```{r}
+# check for multicollinearity
+vif(infer)
+
+# How close simulated data follows a uniform distribution
+sim_resids <- DHARMa::simulateResiduals(infer, plot = TRUE)
+
+# check constant variance among 2 groups
+plotResiduals(sim_resids, form=dat$lung_cancer_risk)
+
+par(mfrow=c(2,2))
+# fitted vs residual plot
+DHARMa::plotResiduals(sim_resids)
+
+# residual values with one of the predictor variables for extra insight
+DHARMa::plotResiduals(sim_resids, form=dat$air_pollution_index)
+
+# check for outliers
+DHARMa::testOutliers(sim_resids)
+
+# cook's distance plot
+plot(infer, which = 4)
+```
+
+
 # Results
+
+Inference Model Numerical Results
+```{r}
+#| warning: false
+#| message: false
+
+# create the inference model - age, gender, bmi are variables we are controlling for
+infer <- glm(lung_cancer_risk ~ pack_years + air_pollution_index + radon_exposure
+             + family_history_cancer + exercise_hours_per_week
+             + age + gender + bmi, 
+             data=dat, family="binomial")
+
+summary(infer)
+
+# convert coefficients and CI from log odds to odds for better interpretability
+exp(coef(infer))
+exp(confint(infer, parm=c("pack_years", "air_pollution_index", "radon_exposure",
+            "family_history_cancer", "exercise_hours_per_week"), level=0.95))
+
+# proportion reduction in deviance compared to intercept only(null) model
+nullDev <- 5610
+residDev <- 911
+R2 <- 1 - residDev/nullDev
+R2
+
+```
+
+Inference Model AUC
+```{r}
+# the fitted values of the model
+prob <- fitted(infer)
+
+roc(dat$lung_cancer_risk ~ prob, plot = TRUE, print.auc = TRUE)
+```
+
 
 
 # Discussion / Conclusion
