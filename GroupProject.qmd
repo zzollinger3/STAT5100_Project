@@ -41,25 +41,11 @@ To answer this question, we will fit two distinct models. First, we will build a
 # Methods
 Our dataset of choice came from the kaggle website (https://www.kaggle.com/datasets/dhrubangtalukdar/lung-cancer-prediction-dataset?resource=download) and includes 5000 observations with no missing values. Our research is based on the binary response variable of lung cancer risk for each observation. There are an additional 29 predictors that may or may not be associated with the outcome of lung cancer risk. 
 
-For our inference model, we did not want our hypothesis or chosen covariates to be influenced by the data itself to maintain the integrity of our inferences.  
+For our inference model, we did not want our hypothesis or chosen covariates to be influenced by the data itself. We did this to maintain the integrity of our inferences and not introduce bias into our model.   
 
-```{r}
-sum(is.na(dat))
-```
+After researching and learning about several of the potential variables related to lung cancer risk, we decided on a few for our inference model. Due to large amounts of research, we suspect that the largest effect will come from the smoking variable. In particular, we have decided to use pack years in this model, which is calculated as the number of cigarettes smoked per day divided by 20 (where 20 is considered the size of one pack) and then multiplied by the number of years that person has smoked. This variable therefore explains not only how long an individual has been smoking but the rate at which they smoke as well. In addition to smoking, we suspect that higher levels of air pollution, an exposure to radon, and a family history of cancer will be postively correlated with lung cancer risk. More specifically we hypothesize that air pollution will have the next largest effect followed by radon exposure and finally a family history of cancer, which we believe will have the smallest effect on cancer risk among these predictors. Finally, we suspect that an increase in exercise hours per week will be associated with a lower risk for lung cancer.
 
-
-
-After examining and researching the potential variables related to lung cancer risk, we decided on a few in particular for our hypothesis. We suspect that increases in smoking (pack years), higher air pollution indices, as well as an exposure to radon and a family history of cancer, will be associated with an increased risk for lung cancer. Also, we suspect that an increase in exercise hours per week will be associated with a lower risk for lung cancer. 
-
-Therefore, with these covariates chosen for the hypothesis, we fit the following inference model while controlling for the variables of age, gender, and body mass index(BMI). 
-
-```{r}
-# show that pack years = cigs_per_day/20 * smoking_yrs
-
-est_pack <- dat$cigarettes_per_day/20 * dat$smoking_years
-sum(abs(dat$pack_years - est_pack) > 1)
-
-```
+Therefore, with these covariates chosen for the hypothesis, we fit the following inference model while controlling for the variables of age, gender, and body mass index(BMI). We did not believe there were any notable interactions between these variables, so none were included in the model. The model equation is $\text{lung_cancer_risk ~ pack_years + air_pollution_index + radon_exposure + family_history_cancer + exercise_hours_per_week+ age + gender + bmi}$  
 
 ```{r}
 #| warning: false
@@ -78,6 +64,7 @@ exp(confint(infer, parm=c("pack_years", "air_pollution_index", "radon_exposure",
 
 ```
 
+Each covariate was carefully chosen for a specific reason to be included in the model. The known health impacts of smoking and air pollution made them clear choices for this model as a way of validating lots of research on this topic. Radon exposure was another  covariate that we assumed would have a clear positive correlation with lung cancer risk due to it being a radioactive gas. Exercise is known to have various health benefits and therefore was one of the few variables in this data set that we thought had the potential of having a negative correlation with lung cancer risk, so we wanted to include it to see its relationship. We know that with some types of cancer having a family history of it can be a key indicator for risk, so we included this covariate to determine if lung cancer has a similar relationship. 
 
 # Results
 
@@ -93,7 +80,12 @@ Data set source: https://www.kaggle.com/datasets/dhrubangtalukdar/lung-cancer-pr
 
 
 # Appendix
+```{r}
+# show that pack years = cigs_per_day/20 * smoking_yrs
+est_pack <- dat$cigarettes_per_day/20 * dat$smoking_years
+sum(abs(dat$pack_years - est_pack) > 1)
 
+```
 
 # Contribution Statement
 
