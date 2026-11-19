@@ -82,6 +82,53 @@ Each covariate was carefully chosen for a specific reason to be included in the 
 
 The inference model we created makes certain assumptions in order to produce its interpretable values for each of the variables. The model's results become invalidated if these assumptions are not met, so we created a few plots to verify them. Because the response variable is binary, we use simulated residuals based off the inference model we fit to test our assumptions.  
 
+Inference Model Assumptions and Diagnostics:
+```{r}
+# check for multicollinearity
+vif(infer)
+```
+The results above show the level of multicollinearity between the predictors used in the model. A value of 1 for all predictors would mean they are all independent of each other. In this case we only have one variable, pack years, which is above 1.5, while the rest stay very close to 0 which suggests that interactions and multicollinearity between these chosen predictors is very minimal.  
+
+```{r}
+#| fig-cap: "QQ Plot tests if simulated residuals follow a uniform distribution (left). Residuals vs Predicted shows relationship between simulated residual values and their predicted values (right)"
+
+# How close simulated data follows a uniform distribution
+sim_resids <- DHARMa::simulateResiduals(infer, plot = TRUE, cex=0.7)
+```
+The plot on the left shows how the simulated residuals follow the uniform distribution (represented by the red line) and the points follow the distribution very closely, which meets one of our assumptions. Additionally, the plot to the right indicates how the residuals we simulated compare to the predictions based off our model, and there doesn't seem to be any obvious patterns among the points. This supports the assumption that our fitted model captures the overall form of the classifier for lung cancer risk. 
+
+```{r}
+#| fig-cap: "Test for the frequency of outliers among the simulated residuals (left) and the Cook's Distance Plot highlighting potential high influence points (right)"
+
+par(mfrow=c(1,2))
+# check for outliers
+DHARMa::testOutliers(sim_resids)
+
+# cook's distance plot
+plot(infer, which = 4)
+```
+These two plots help discover potential outliers and influential points that should be examined more closely. The outlier test above came out to be significant but because our residuals contained less outliers than normal. This is shown by comparing the expected frequency of outliers to the observed frequency and in this case the observed frequency was less than what was expected. Therefore, there is no issue of having too many outliers among the simulated residuals. The plot to the right highlights 3 points with the highest cook's distance, which means they may be outliers and also have a large impact on how the model makes predictions. It is good practice to investigate these observations a bit closer, so we looked at the values for each of the predictors at those 3 observations: 698, 2936, and 4021.
+
+```{r}
+dat[c(698, 2936, 4021), c("age", "gender", "pack_years", "air_pollution_index", 
+                          "radon_exposure", "family_history_cancer", "bmi", 
+                          "exercise_hours_per_week", "lung_cancer_risk")]
+
+```
+
+Point 698 doesn't appear too abnormal, while they are on the younger side, they have smoked for a while, been exposed to radon, and live in a place with a slightly higher than average air pollution index. Therefore, it is not too surprising or extreme that they are at risk for lung cancer. Observation 2936 seems to have been flagged because they have smoked the equivalent of one pack a day for 17 years and yet are not at lung cancer risk. However, I don't think this is justification enough to remove the data point because the air pollution index is below average and they have not been exposed to radon or have a family history of cancer. Finally, observation 4021 is of interest because despite living in a lower than average air pollution index and only having smoked the equivalent of a pack of cigarettes a day for 2 years, they are marked as having lung cancer risk. Due to their advanced age and their time smoking even though it is on the shorter end, it does not seem unreasonable for them to be at risk. Therefore, we have decided to keep all observations in the model and don't feel that the presence of any of these outliers have a very large impact on the model. 
+
+Next, we focused on exploring the data in preparation for creating our prediction model. 
+
+```{r}
+n <- nrow(lung)
+train_ids <- sample.int(n, size = floor(0.85 * n))
+
+train <- lung[train_ids, ]
+test <- lung[-train_ids, ]
+```
+
+
 
 # Results
 
@@ -123,43 +170,6 @@ roc(dat$lung_cancer_risk ~ prob, plot = TRUE, print.auc = TRUE)
 Explain RESULTS
 
 
-Inference Model Assumptions and Diagnostics
-```{r}
-# check for multicollinearity
-vif(infer)
-```
-The results above show the level of multicollinearity between the predictors used in the model. A value of 1 for all predictors would mean they are all independent of each other. In this case we only have one variable, pack years, which is above 1.5, while the rest stay very close to 0 which suggests that interactions and multicollinearity between these chosen predictors is very minimal.  
-
-```{r}
-#| fig-cap: "QQ Plot tests if simulated residuals follow a uniform distribution (left). Residuals vs Predicted shows relationship between simulated residual values and their predicted values (right)"
-
-# How close simulated data follows a uniform distribution
-sim_resids <- DHARMa::simulateResiduals(infer, plot = TRUE, cex=0.7)
-```
-The plot on the left shows how the simulated residuals follow the uniform distribution (represented by the red line) and the points follow the distribution very closely, which meets one of our assumptions. Additionally, the plot to the right indicates how the residuals we simulated compare to the predictions based off our model, and there doesn't seem to be any obvious patterns among the points. This supports the assumption that our fitted model captures the overall form of the classifier for lung cancer risk. 
-
-```{r}
-#| fig-cap: "Test for the frequency of outliers among the simulated residuals (left) and the Cook's Distance Plot highlighting potential high influence points (right)"
-
-par(mfrow=c(1,2))
-# check for outliers
-DHARMa::testOutliers(sim_resids)
-
-# cook's distance plot
-plot(infer, which = 4)
-```
-
-These two plots help discover potential outliers and influential points that should be examined more closely. The outlier test above came out to be significant but because our residuals contained less outliers than normal. This is shown by comparing the expected frequency of outliers to the observed frequency and in this case the observed frequency was less than what was expected. Therefore, there is no issue of having too many outliers among the simulated residuals. The plot to the right highlights 3 points with the highest cook's distance, which means they may be outliers and also have a large impact on how the model makes predictions. It is good practice to investigate these observations a bit closer, so we looked at the values for each of the predictors at those 3 observations: 698, 2936, and 4021.
-
-```{r}
-dat[c(698, 2936, 4021), c("age", "gender", "pack_years", "air_pollution_index", 
-                          "radon_exposure", "family_history_cancer", "bmi", 
-                          "exercise_hours_per_week", "lung_cancer_risk")]
-
-mean(dat$air_pollution_index)
-
-```
-Point 698 doesn't appear too abnormal, while they are on the younger side, they have smoked for a while, been exposed to radon, and live in a place with a slightly higher than average air pollution index. Therefore, it is not too surprising or extreme that they are at risk for lung cancer. Observation 2936 seems to have been flagged because they have smoked the equivalent of one pack a day for 17 years and yet are not at lung cancer risk. However, I don't think this is justification enough to remove the data point because the air pollution index is below average and they have not been exposed to radon or have a family history of cancer. Finally, observation 4021 is of interest because despite living in a lower than average air pollution index and only having smoked the equivalent of a pack of cigarettes a day for 2 years, they are marked as having lung cancer risk. Due to their advanced age and their time smoking even though it is on the shorter end, it does not seem unreasonable for them to be at risk. Therefore, we have decided to keep all observations in the model and don't feel that the presence of any of these outliers have a very large impact on the model. 
 
 # Discussion / Conclusion
 
