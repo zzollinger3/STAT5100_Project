@@ -18,6 +18,7 @@ execute:
   cache: false
 editor: source
 ---
+
 \newpage
 
 ```{r}
@@ -33,22 +34,21 @@ library(car)
 library(pROC)
 ```
 
-
 # Introduction
 
 Lung Cancer is the leading cause of cancer related death in the United States, accounting for about 1 out of every 5 cancer deaths in the country. This is driven by a number of factors, including various behavioral, environmental, and genetic risk factors. Identifying which specific factors most strongly elevate the risk of lung cancer is essential for identifying those who are most likely to develop lung cancer. In this study, we analyze a clinical and lifestyle dataset of 5,000 individuals to evaluate the driving factors of lung cancer risk and the predictive accuracy of these factors. Specifically we aim to answer this question: What demographic, lifestyle, environmental, and clinical features are most relevant in predicting lung cancer risk?
 
 To answer this question, we will fit two distinct models. First, we will build an inferential logistic regression model using the covariates we hypothesize will drive higher lung cancer risk. After this first model is evaluated, we will construct a predictive model using data-driven model selection and evaluate it using cross-validation.
 
-
 # Methods
-Our dataset of choice came from the kaggle website (https://www.kaggle.com/datasets/dhrubangtalukdar/lung-cancer-prediction-dataset?resource=download) and includes 5000 observations with no missing values. Our research is based on the binary response variable of lung cancer risk for each observation. There are an additional 29 predictors that may or may not be associated with the outcome of lung cancer risk. 
 
-For our inference model, we did not want our hypothesis or chosen covariates to be influenced by the data itself. We did this to maintain the integrity of our inferences and not introduce bias into our model.   
+Our dataset of choice came from the kaggle website (https://www.kaggle.com/datasets/dhrubangtalukdar/lung-cancer-prediction-dataset?resource=download) and includes 5000 observations with no missing values. Our research is based on the binary response variable of lung cancer risk for each observation. There are an additional 29 predictors that may or may not be associated with the outcome of lung cancer risk.
+
+For our inference model, we did not want our hypothesis or chosen covariates to be influenced by the data itself. We did this to maintain the integrity of our inferences and not introduce bias into our model.
 
 After researching and learning about several of the potential variables related to lung cancer risk, we decided on a few for our inference model. Due to large amounts of research, we suspect that the largest effect will come from the smoking variable. In particular, we have decided to use pack years in this model, which is calculated as the number of cigarettes smoked per day divided by 20 (where 20 is considered the size of one pack) and then multiplied by the number of years that person has smoked. This variable therefore explains not only how long an individual has been smoking but the rate at which they smoke as well. In addition to smoking, we suspect that higher levels of air pollution, an exposure to radon, and a family history of cancer will be postively correlated with lung cancer risk. More specifically we hypothesize that air pollution will have the next largest effect followed by radon exposure and finally a family history of cancer, which we believe will have the smallest effect on cancer risk among these predictors. Finally, we suspect that an increase in exercise hours per week will be associated with a lower risk for lung cancer.
 
-Therefore, with these covariates chosen for the hypothesis, we fit the following inference model while controlling for the variables of age, gender, and body mass index(BMI). We did not believe there were any notable interactions between these variables, so none were included in the model. The model equation is "lung_cancer_risk ~ pack_years + air_pollution_index + radon_exposure + family_history_cancer + exercise_hours_per_week + age + gender + bmi"
+Therefore, with these covariates chosen for the hypothesis, we fit the following inference model while controlling for the variables of age, gender, and body mass index(BMI). We did not believe there were any notable interactions between these variables, so none were included in the model. The model equation is "lung_cancer_risk \~ pack_years + air_pollution_index + radon_exposure + family_history_cancer + exercise_hours_per_week + age + gender + bmi"
 
 ```{r}
 #| warning: false
@@ -78,16 +78,18 @@ R2
 
 ```
 
-Each covariate was carefully chosen for a specific reason to be included in the model. The known health impacts of smoking and air pollution made them clear choices for this model as a way of validating lots of research on this topic. Radon exposure was another  covariate that we assumed would have a clear positive correlation with lung cancer risk due to it being a radioactive gas. Exercise is known to have various health benefits and therefore was one of the few variables in this data set that we thought had the potential of having a negative correlation with lung cancer risk, so we wanted to include it to see its relationship. We know that with some types of cancer having a family history of it can be a key indicator for risk, so we included this covariate to determine if lung cancer has a similar relationship. 
+Each covariate was carefully chosen for a specific reason to be included in the model. The known health impacts of smoking and air pollution made them clear choices for this model as a way of validating lots of research on this topic. Radon exposure was another covariate that we assumed would have a clear positive correlation with lung cancer risk due to it being a radioactive gas. Exercise is known to have various health benefits and therefore was one of the few variables in this data set that we thought had the potential of having a negative correlation with lung cancer risk, so we wanted to include it to see its relationship. We know that with some types of cancer having a family history of it can be a key indicator for risk, so we included this covariate to determine if lung cancer has a similar relationship.
 
-The inference model we created makes certain assumptions in order to produce its interpretable values for each of the variables. The model's results become invalidated if these assumptions are not met, so we created a few plots to verify them. Because the response variable is binary, we use simulated residuals based off the inference model we fit to test our assumptions.  
+The inference model we created makes certain assumptions in order to produce its interpretable values for each of the variables. The model's results become invalidated if these assumptions are not met, so we created a few plots to verify them. Because the response variable is binary, we use simulated residuals based off the inference model we fit to test our assumptions.
 
 Inference Model Assumptions and Diagnostics:
+
 ```{r}
 # check for multicollinearity
 vif(infer)
 ```
-The results above show the level of multicollinearity between the predictors used in the model. A value of 1 for all predictors would mean they are all independent of each other. In this case we only have one variable, pack years, which is above 1.5, while the rest stay very close to 0 which suggests that interactions and multicollinearity between these chosen predictors is very minimal.  
+
+The results above show the level of multicollinearity between the predictors used in the model. A value of 1 for all predictors would mean they are all independent of each other. In this case we only have one variable, pack years, which is above 1.5, while the rest stay very close to 0 which suggests that interactions and multicollinearity between these chosen predictors is very minimal.
 
 ```{r}
 #| fig-cap: "QQ Plot tests if simulated residuals follow a uniform distribution (left). Residuals vs Predicted shows relationship between simulated residual values and their predicted values (right)"
@@ -95,7 +97,8 @@ The results above show the level of multicollinearity between the predictors use
 # How close simulated data follows a uniform distribution
 sim_resids <- DHARMa::simulateResiduals(infer, plot = TRUE, cex=0.7)
 ```
-The plot on the left shows how the simulated residuals follow the uniform distribution (represented by the red line) and the points follow the distribution very closely, which meets one of our assumptions. Additionally, the plot to the right indicates how the residuals we simulated compare to the predictions based off our model, and there doesn't seem to be any obvious patterns among the points. This supports the assumption that our fitted model captures the overall form of the classifier for lung cancer risk. 
+
+The plot on the left shows how the simulated residuals follow the uniform distribution (represented by the red line) and the points follow the distribution very closely, which meets one of our assumptions. Additionally, the plot to the right indicates how the residuals we simulated compare to the predictions based off our model, and there doesn't seem to be any obvious patterns among the points. This supports the assumption that our fitted model captures the overall form of the classifier for lung cancer risk.
 
 ```{r}
 #| fig-cap: "Test for the frequency of outliers among the simulated residuals (left) and the Cook's Distance Plot highlighting potential high influence points (right)"
@@ -107,6 +110,7 @@ DHARMa::testOutliers(sim_resids)
 # cook's distance plot
 plot(infer, which = 4)
 ```
+
 These two plots help discover potential outliers and influential points that should be examined more closely. The outlier test above came out to be significant but because our residuals contained less outliers than normal. This is shown by comparing the expected frequency of outliers to the observed frequency and in this case the observed frequency was less than what was expected. Therefore, there is no issue of having too many outliers among the simulated residuals. The plot to the right highlights 3 points with the highest cook's distance, which means they may be outliers and also have a large impact on how the model makes predictions. It is good practice to investigate these observations a bit closer, so we looked at the values for each of the predictors at those 3 observations: 698, 2936, and 4021.
 
 ```{r}
@@ -116,23 +120,51 @@ dat[c(698, 2936, 4021), c("age", "gender", "pack_years", "air_pollution_index",
 
 ```
 
-Point 698 doesn't appear too abnormal, while they are on the younger side, they have smoked for a while, been exposed to radon, and live in a place with a slightly higher than average air pollution index. Therefore, it is not too surprising or extreme that they are at risk for lung cancer. Observation 2936 seems to have been flagged because they have smoked the equivalent of one pack a day for 17 years and yet are not at lung cancer risk. However, I don't think this is justification enough to remove the data point because the air pollution index is below average and they have not been exposed to radon or have a family history of cancer. Finally, observation 4021 is of interest because despite living in a lower than average air pollution index and only having smoked the equivalent of a pack of cigarettes a day for 2 years, they are marked as having lung cancer risk. Due to their advanced age and their time smoking even though it is on the shorter end, it does not seem unreasonable for them to be at risk. Therefore, we have decided to keep all observations in the model and don't feel that the presence of any of these outliers have a very large impact on the model. 
+Point 698 doesn't appear too abnormal, while they are on the younger side, they have smoked for a while, been exposed to radon, and live in a place with a slightly higher than average air pollution index. Therefore, it is not too surprising or extreme that they are at risk for lung cancer. Observation 2936 seems to have been flagged because they have smoked the equivalent of one pack a day for 17 years and yet are not at lung cancer risk. However, I don't think this is justification enough to remove the data point because the air pollution index is below average and they have not been exposed to radon or have a family history of cancer. Finally, observation 4021 is of interest because despite living in a lower than average air pollution index and only having smoked the equivalent of a pack of cigarettes a day for 2 years, they are marked as having lung cancer risk. Due to their advanced age and their time smoking even though it is on the shorter end, it does not seem unreasonable for them to be at risk. Therefore, we have decided to keep all observations in the model and don't feel that the presence of any of these outliers have a very large impact on the model.
 
-Next, we focused on exploring the data in preparation for creating our prediction model. 
+Next, we focused on exploring the data in preparation for creating our prediction model. This prediction model will also be a logistic regression model. However, unlike the inferential model, which was restricted to our selected covariates, the predictive model considers the full set of 29 possible predictor variables in the dataset. These include various demographic, lifestyle, environmental, and clinical indicators.
+
+Logistic regression is a type of generalized linear model(GLM). GLM's can be used to fit a model when it doesn't make sense to use OLS. When we use OLS, the predicted values are unconstrained and unbounded. For continuous response variables, this makes sense, but for response variables that are binary or count outcomes, it doesn't produce a coherent model. In order to build an effective and coherent model, GLM's define 3 components: a probability distribution for the response variable(random component), a linear predictor built from the covariates(systematic component), and a link function connecting the other two(link component).
+
+The response variable(`lung_cancer_risk`) is binary in nature, with outcomes $y_i \in {0,1}$ where an outcome of 1 indicates elevated risk of lung cancer. If we used an OLS model, the predicted $\hat y_i$ are unconstrained and could fall outside $[0,1]$. Such values would be incoherent and our ability to use such a model would suffer. This is why it makes sense to use logistic regression for our model.
+
+Logistic regression is the GLM for binary outcomes. The three components for a logistic regression model are as follows
+
+1.  The Random Component:
+
+Each observation of our response variable follows a Bernoulli distribution:
+
+$$Y_i \sim \text{Bernoulli}(\pi_i), \pi_i = P(Y_i = 1|x_i)$$
+
+2.  The Systematic Component:
+
+Just as in OLS, the predictors are entered into model as a linear combination:
+
+$$\eta_i = \beta_0 + \beta_1X_{i,1} + \cdots + \beta_{p-1}X_{i,p-1}$$
+
+The linear predictor $\eta_i$ is unconstrained and can take any real value.
+
+3.  The Link Component:
+
+For logistic regression, the logit link connects $\pi_i$ to the linear predictor $\eta_i$:
+
+$$
+g(\pi_i) = \log\left(\frac{\pi_i}{1-\pi_i}\right) = \eta_i
+$$
+
 
 ```{r}
-n <- nrow(lung)
-train_ids <- sample.int(n, size = floor(0.85 * n))
+# n <- nrow(lung)
+# train_ids <- sample.int(n, size = floor(0.85 * n))
 
-train <- lung[train_ids, ]
-test <- lung[-train_ids, ]
+# train <- lung[train_ids, ]
+# test <- lung[-train_ids, ]
 ```
-
-
 
 # Results
 
 Inference Model Numerical Results
+
 ```{r}
 #| warning: false
 #| message: false
@@ -157,31 +189,30 @@ R2 <- 1 - residDev/nullDev
 R2
 
 ```
+
 Explain RESULTS
 
-
 Inference Model AUC
+
 ```{r}
 # the fitted values of the model
 prob <- fitted(infer)
 
 roc(dat$lung_cancer_risk ~ prob, plot = TRUE, print.auc = TRUE)
 ```
+
 Explain RESULTS
-
-
 
 # Discussion / Conclusion
 
-
 # References
-Data set source: https://www.kaggle.com/datasets/dhrubangtalukdar/lung-cancer-prediction-dataset?resource=download)
 
+Data set source: https://www.kaggle.com/datasets/dhrubangtalukdar/lung-cancer-prediction-dataset?resource=download)
 
 # Figures / Tables
 
-
 # Appendix
+
 ```{r}
 # show that pack years = cigs_per_day/20 * smoking_yrs
 est_pack <- dat$cigarettes_per_day/20 * dat$smoking_years
@@ -191,12 +222,4 @@ sum(abs(dat$pack_years - est_pack) > 1)
 
 # Contribution Statement
 
-
 # Response to Reviews
-
-
-
-
-
-
-
