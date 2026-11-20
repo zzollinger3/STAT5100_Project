@@ -134,7 +134,7 @@ Logistic regression is the GLM for binary outcomes. The three components for a l
 
 Each observation of our response variable follows a Bernoulli distribution:
 
-$$Y_i \sim \text{Bernoulli}(\pi_i), \pi_i = P(Y_i = 1|x_i)$$
+$$Y_i \sim \text{Bernoulli}(\pi_i), \pi_i = P(Y_i = 1 \mid x_i)$$
 
 2.  The Systematic Component:
 
@@ -151,6 +151,7 @@ For logistic regression, the logit link connects $\pi_i$ to the linear predictor
 $$
 g(\pi_i) = \log\left(\frac{\pi_i}{1-\pi_i}\right) = \eta_i
 $$
+
 
 
 ```{r}
